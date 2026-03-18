@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Earth Globe</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: black; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// Sphere
+const geometry = new THREE.SphereGeometry(5, 64, 64);
+const texture = new THREE.TextureLoader().load(
+  'https://threejs.org/examples/textures/earth_atmos_2048.jpg'
+);
+
+const material = new THREE.MeshBasicMaterial({ map: texture });
+const earth = new THREE.Mesh(geometry, material);
+scene.add(earth);
+
+camera.position.z = 10;
+
+// Mouse control
+let isDragging = false;
+let previousMousePosition = { x: 0, y: 0 };
+
+document.addEventListener('mousedown', () => isDragging = true);
+document.addEventListener('mouseup', () => isDragging = false);
+
+document.addEventListener('mousemove', (e) => {
+  if (isDragging) {
+    const deltaMove = {
+      x: e.offsetX - previousMousePosition.x,
+      y: e.offsetY - previousMousePosition.y
+    };
+
+    earth.rotation.y += deltaMove.x * 0.005;
+    earth.rotation.x += deltaMove.y * 0.005;
+  }
+
+  previousMousePosition = { x: e.offsetX, y: e.offsetY };
+});
+
+// Animation loop
+function animate() {
+  requestAnimationFrame(animate);
+  earth.rotation.y += 0.001; // slow rotation
+  renderer.render(scene, camera);
+}
+
+animate();
+</script>
+</body>
+</html>
